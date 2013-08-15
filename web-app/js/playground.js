@@ -12,16 +12,17 @@ $(function (){
 	var centerX = canvas.width / 2;
 	var centerY = canvas.height / 2;
 	var world = new worldObject();
-	var radius = 20;
+	var radius = canvas.width *10/100;
 	world.x = centerX;
 	world.y = centerY;
 	var draw = function() {
 		context.clearRect(0,0,canvas.width,canvas.height);
 
-		buildGrids(10, "#eee", 50);
-
+		drawGrids(10, "#eee", 50);
+		drawObjects(10, "#eee", 50);
 
 		context.beginPath();
+		context.globalAlpha = 0.5;
 		context.arc(world.x,world.y, radius, 0, 2 * Math.PI, false);
 		context.fillStyle = '#dd0033';
 		context.fill();
@@ -29,7 +30,7 @@ $(function (){
 		context.strokeStyle = '#ee0011';
 		context.stroke();
 	}
-	var buildGrids = function (gridPixelSize, color, gap)
+	var drawGrids = function (gridPixelSize, color, gap)
 	{
 		context.lineWidth = 0.5;
 		context.strokeStyle = color;
@@ -66,8 +67,19 @@ $(function (){
 		}
 
 	}
+	var drawObjects = function (gridPixelSize, color, gap) {
+		var maxX = 100;
+		var maxY = 100;
+		$.each(world.objectList, function (index, value) {
+			context.beginPath();
+			context.rect(canvas.width*value.latitude/maxX-5, canvas.height*value.longitude/maxY-5, 10, 10);
+			context.fillStyle = 'green';
+			context.fill();
+			context.stroke();
+		});
+	}
 
-	draw();
+		draw();
 	$('canvas').keydown(function(e){
 		$('#yAxe').val(world.y);
 		$('#xAxe').val(world.x);
@@ -93,29 +105,32 @@ $(function (){
 
 		ajaxCall(world);
 	});
+	var ajaxCall = function(world) {
+		var fbUrl= ajaxAction;
+		$.ajax({
+			dataType: "json",
+			url: fbUrl ,
+			data: { x: world.x/canvas.width*100, y: world.y/canvas.height*100, radius: "10" },
+			type: 'POST',
+			success: function (resp) {
+				console.log(resp.thingList);
+				world.objectList = resp.thingList;
+				$('#ajaxData').text(JSON.stringify(resp));
+				draw();
+			},
+			error: function(e){
+				alert('shit happes');
+				$('#ajaxData').text(e);
+			}
+		});
+	}
 });
-var ajaxCall = function(world) {
-	var fbUrl= ajaxAction;
-	$.ajax({
-		dataType: "json",
-		url: fbUrl ,
-		data: { x: world.x, y: world.y },
-		type: 'POST',
-		success: function (resp) {
-			console.log(resp);
-			$('#ajaxData').text(JSON.stringify(resp));
-		},
-		error: function(e){
-			alert('shit happes');
-			$('#ajaxData').text(e);
-		}
-	});
-}
+
 var worldObject = function() {
 	var me = this;
 	me.x = 0;
 	me.y = 0;
-
+	me.objectList = new Array();
 	me.move = function(direction) {
 		switch(direction) {
 			case 'left':

@@ -16,8 +16,6 @@
 			Browser does not support canvas
 		</canvas>
 	</div>
-	<div id="ajaxData">
-	</div>
 </body>
 <script type="text/javascript">
 	var ajaxAction = "${createLink(controller:'json',action:'mockData')}"
