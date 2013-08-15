@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="linhs-MacBook-Pro.local" name="bikegame.RaceIntegrationTests" tests="1" time="0.263" timestamp="2013-06-07T22:19:20">
+  <properties />
+  <testcase classname="bikegame.RaceIntegrationTests" name="testRaceDatesBeforeToday" time="0.242" />
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
