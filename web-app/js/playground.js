@@ -128,7 +128,9 @@ $(function (){
 
 		$.each(world.objectList, function (index, value) {
 			draw2d(value);
-			append3d(value);
+			if (jQuery.inArray(parseInt($(this).attr("id")), idList) != -1) {
+				append3d(value);
+			}
 		});
 		world.drawedList = world.objectList;
 		console.log(world.drawedList);
