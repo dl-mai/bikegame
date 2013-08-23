@@ -70,13 +70,68 @@ $(function (){
 	var drawObjects = function (gridPixelSize, color, gap) {
 		var maxX = 100;
 		var maxY = 100;
-		$.each(world.objectList, function (index, value) {
+
+		function draw2d(value) {
 			context.beginPath();
-			context.rect(canvas.width*value.latitude/maxX-5, canvas.height*value.longitude/maxY-5, 10, 10);
+			context.rect(canvas.width * value.latitude / maxX - 5, canvas.height * value.longitude / maxY - 5, 10, 10);
 			context.fillStyle = 'green';
 			context.fill();
 			context.stroke();
+		}
+
+		function append3d(value) {
+			var t = $('<transform>');
+			var x = (value.latitude - 50) / 50 * 20;
+			var y = (value.longitude -50) / 50 * 20;
+			t.attr("translation", x + " " + 0 + " " + y);
+			t.attr("scale", 0.3 + " " + 0.3 + " " + 0.3 );
+
+			var s = $('<shape>');
+			var app = $('<appearance>');
+			var mat = $('<material>');
+
+			app.append(mat);
+			s.append(app);
+			t.append(s);
+
+			var b = $('<box>');
+
+			s.append(b);
+			t.attr("id", value.id);
+			t.attr("data-role", "thing-object");
+
+			$('#root').append(t);
+
+			return false;
+		}
+
+
+//		$.each(world.drawedList, function (index, value) {
+//			var inArray = false;
+//
+//			$.each(world.objectList, function (indexOfDrawed, drawedObject) {
+//				if(drawedObject.id == value.id){
+//					inArray = true;
+//					console.log("in array");
+//				}
+//			});
+//			if (!inArray) {
+//				$("#" + value.id).remove();
+//			}
+//		});
+		var idList = world.objectListIds();
+		$('[data-role="thing-object"]').each(function( index ) {
+			if (jQuery.inArray(parseInt($(this).attr("id")), idList) == -1) {
+				$(this).remove();
+			}
 		});
+
+		$.each(world.objectList, function (index, value) {
+			draw2d(value);
+			append3d(value);
+		});
+		world.drawedList = world.objectList;
+		console.log(world.drawedList);
 	}
 
 		draw();
@@ -96,13 +151,9 @@ $(function (){
 			case 87:
 				world.move('down');
 				break;
-			case 191:
-				alert("go");
 			default:
 				;
 		}
-		draw();
-
 		ajaxCall(world);
 	});
 	var ajaxCall = function(world) {
@@ -113,7 +164,6 @@ $(function (){
 			data: { x: world.x/canvas.width*100, y: world.y/canvas.height*100, radius: "10" },
 			type: 'POST',
 			success: function (resp) {
-				console.log(resp.thingList);
 				world.objectList = resp.thingList;
 				$('#ajaxData').text(JSON.stringify(resp));
 				draw();
@@ -131,28 +181,36 @@ var worldObject = function() {
 	me.x = 0;
 	me.y = 0;
 	me.objectList = new Array();
+	me.drawedList = new Array();
+	me.objectListIds = function() {
+		var idList = [];
+		$.each(me.objectList, function (index, value) {
+			idList.push(value.id);
+		});
+		return idList;
+	};
 	me.move = function(direction) {
 		switch(direction) {
 			case 'left':
 				if(me.x == 0) {
 					break;
 				}
-				me.x -= 1;
+				me.x -= 2;
 				break;
 			case 'top':
-				me.y += 1;
+				me.y += 2;
 				break;
 			case 'right':
-				me.x += 1;
+				me.x += 2;
 				break;
 			case 'down':
 				if(me.y == 0) {
 					break;
 				}
-				me.y -= 1;
+				me.y -= 2;
 				break;
 			default:
 				alert('crap');
 		}
-	}
+	};
 }
